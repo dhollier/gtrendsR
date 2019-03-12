@@ -7,7 +7,7 @@ get_api_cookies <- function(cookie_url) {
   # create new handler
   cookie_handler <- curl::new_handle()
   # VY. set options for the proxy
-  curl::handle_setopt(handle=cookie_handler,.list=list(ssl_verifypeer=0L,proxyuserpwd=paste(.pkgenv[["handle_domain"]],"\\",.pkgenv[["handle_user"]],":",.pkgenv[["handle_password"]],sep=""),proxyauth=.pkgenv[["handle_proxyauth"]],proxy=.pkgenv[["handle_proxyhost"]],proxyport=.pkgenv[["handle_proxyport"]]))
+  curl::handle_setopt(handle=cookie_handler,.list=list(ssl_verifypeer=0L,proxyuserpwd=paste(.pkgenv[["handle_domain"]],"\\",.pkgenv[["handle_user"]],":",.pkgenv[["handle_password"]],sep=""),proxyauth=.pkgenv[["handle_proxyauth"]],proxy=.pkgenv[["handle_proxyhost"]],proxyport=.pkgenv[["handle_proxyport"]],timeout=300))
   # fetch API cookies
   cookie_req <- curl::curl_fetch_memory(cookie_url, handle = cookie_handler)
   curl::handle_cookies(cookie_handler)
@@ -95,8 +95,12 @@ get_widget <- function(comparison_item, category, gprop, hl, cookie_url, tz) {
   url <- encode_keyword(url)
   
   # if cookie_handler hasn't been set up, get the requisite cookies from Google's API
-  if(!exists("cookie_handler", envir = .pkgenv)){ get_api_cookies(cookie_url) }
-  # get the tokens etc., using the URL and the cookie_handler
+  #  DH - refresh cookies every time
+  # if(!exists("cookie_handler", envir = .pkgenv)){ get_api_cookies(cookie_url) }
+  get_api_cookies(cookie_url) 
+  
+  
+    # get the tokens etc., using the URL and the cookie_handler
   widget <- curl::curl_fetch_memory(url, handle = .pkgenv[["cookie_handler"]])
 
   stopifnot(widget$status_code == 200)
